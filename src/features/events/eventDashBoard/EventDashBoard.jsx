@@ -1,31 +1,14 @@
-import React, { useState } from "react";
 import EventList from "./EventList";
-import { sampleData } from "../../../app/api/sampleData";
 import { Grid } from "semantic-ui-react";
+import { useSelector } from "react-redux";
 
 const EventDashBoard = () => {
-  const [events, setEvents] = useState(sampleData);
-
-  // const handleCreateEvent = (event) => {
-  //   setEvents([...events, event]);
-  // };
-
-  // const handleUpdateEvent = (updatedEvent) => {
-  //   setEvents(
-  //     events.map((event) =>
-  //       event.id === updatedEvent.id ? updatedEvent : event
-  //     )
-  //   );
-  // };
-
-  const handleDeleteEvent = (eventId) => {
-    setEvents(events.filter((event) => event.id !== eventId));
-  };
+  const { events } = useSelector((state) => state.event);
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList events={events} deleteEvent={handleDeleteEvent} />
+        <EventList events={events} />
       </Grid.Column>
       <Grid.Column width={6}>
         <h2>Event Filters</h2>

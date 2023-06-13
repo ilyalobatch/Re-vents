@@ -1,20 +1,24 @@
-import React from "react";
 import { Grid } from "semantic-ui-react";
+import { useSelector } from "react-redux";
 import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedHeader from "./EventDetailedHeader";
 import EventDetailedInfo from "./EventDetailedInfo";
 import EventDetailedSideBar from "./EventDetailedSideBar";
 
-const EventDetailedPage = () => {
+const EventDetailedPage = ({ match }) => {
+  const event = useSelector((state) =>
+    state.event.events.find((e) => e.id === match.params.id)
+  );
+
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventDetailedHeader />
-        <EventDetailedInfo />
+        <EventDetailedHeader event={event} />
+        <EventDetailedInfo event={event} />
         <EventDetailedChat />
       </Grid.Column>
       <Grid.Column width={6}>
-        <EventDetailedSideBar />
+        <EventDetailedSideBar attendees={event.attendees} />
       </Grid.Column>
     </Grid>
   );
