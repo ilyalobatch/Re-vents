@@ -63,6 +63,4 @@ const EventDetailedHeader = ({ event }) => {
   );
 };
 
-// ${event.id}
-
 export default EventDetailedHeader;
