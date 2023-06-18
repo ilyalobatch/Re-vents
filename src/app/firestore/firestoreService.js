@@ -90,3 +90,62 @@ export const updateUserProfile = async (profile) => {
     throw error;
   }
 };
+
+export const updateUserProfilePhoto = async (downloadURL, filename) => {
+  const user = firebase.auth().currentUser;
+  const userDocRef = database.collection("users").doc(user.uid);
+
+  try {
+    const userDoc = await userDocRef.get();
+    if (!userDoc.data().photoURL) {
+      await database.collection("users").doc(user.uid).update({
+        photoURL: downloadURL,
+      });
+      await user.updateProfile({
+        photoURL: downloadURL,
+      });
+    }
+
+    return await database
+      .collection("users")
+      .doc(user.uid)
+      .collection("photos")
+      .add({
+        name: filename,
+        url: downloadURL,
+      });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserPhotos = (userUid) => {
+  return database.collection("users").doc(userUid).collection("photos");
+};
+
+export const setMainPhoto = async (photo) => {
+  const user = firebase.auth().currentUser;
+
+  try {
+    await database.collection("users").doc(user.uid).update({
+      photoURL: photo.url,
+    });
+
+    return await user.updateProfile({
+      photoURL: photo.url,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deletePhotoFromCollection = (photoId) => {
+  const userUid = firebase.auth().currentUser.uid;
+
+  return database
+    .collection("users")
+    .doc(userUid)
+    .collection("photos")
+    .doc(photoId)
+    .delete();
+};

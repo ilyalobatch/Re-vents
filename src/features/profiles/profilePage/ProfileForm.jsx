@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import { updateUserProfile } from "../../../app/firestore/firestoreService";
 
-const ProfileForm = ({ profile }) => {
+const ProfileForm = ({ profile, setEditMode }) => {
   return (
     <Formik
       initialValues={{
@@ -19,6 +19,7 @@ const ProfileForm = ({ profile }) => {
       onSubmit={async (values, { setSubmitting }) => {
         try {
           await updateUserProfile(values);
+          setEditMode(false);
         } catch (error) {
           toast.error(error.message);
         } finally {
