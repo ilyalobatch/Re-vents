@@ -25,7 +25,7 @@ const LoginForm = () => {
             setSubmitting(false);
             dispatch(closeModal());
           } catch (error) {
-            setErrors("Username or password is incorrect");
+            setErrors({ auth: "Username or password is incorrect" });
             setSubmitting(false);
           }
         }}
