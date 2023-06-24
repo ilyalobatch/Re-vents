@@ -22,8 +22,10 @@ const modalReducer = (state = initialState, { type, payload }) => {
       const { modalType, modalProps } = payload;
 
       return { modalType, modalProps };
+
     case CLOSE_MODAL:
       return null;
+
     default:
       return state;
   }
