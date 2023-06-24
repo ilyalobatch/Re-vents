@@ -1,16 +1,16 @@
-import firebase from "firebase/compat/app";
-import "firebase/compat/firestore";
-import "firebase/compat/database";
-import "firebase/compat/auth";
-import "firebase/compat/storage";
+import firebase from "firebase/app";
+import "firebase/firestore";
+import "firebase/database";
+import "firebase/auth";
+import "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDuhNTE-oAYZuGUFP_69gqqR7n9VC4Weqo",
-  authDomain: "re-events-5a5c7.firebaseapp.com",
-  projectId: "re-events-5a5c7",
-  storageBucket: "re-events-5a5c7.appspot.com",
-  messagingSenderId: "126882871553",
-  appId: "1:126882871553:web:b8130c64d48c2904c34300",
+  apiKey: "AIzaSyCoUIQapzQei5QxRBVucwtv9VKISLidgsI",
+  authDomain: "re-events-bf906.firebaseapp.com",
+  projectId: "re-events-bf906",
+  storageBucket: "re-events-bf906.appspot.com",
+  messagingSenderId: "53235890711",
+  appId: "1:53235890711:web:741b046b8e87c184ab7a52"
 };
 
 firebase.initializeApp(firebaseConfig);

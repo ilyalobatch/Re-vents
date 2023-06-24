@@ -87,21 +87,9 @@ export const addEventChatComment = (eventId, values) => {
     parentId: values.parentId,
   };
 
-  return firebase
-    .app()
-    .database(
-      "https://re-events-5a5c7-default-rtdb.europe-west1.firebasedatabase.app/"
-    )
-    .ref(`chat/${eventId}`)
-    .push(newComment);
+  return firebase.database().ref(`chat/${eventId}`).push(newComment);
 };
 
 export const getEventChatRef = (eventId) => {
-  return firebase
-    .app()
-    .database(
-      "https://re-events-5a5c7-default-rtdb.europe-west1.firebasedatabase.app/"
-    )
-    .ref(`chat/${eventId}`)
-    .orderByKey();
+  return firebase.database().ref(`chat/${eventId}`).orderByKey();
 };

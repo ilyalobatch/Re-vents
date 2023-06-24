@@ -1,17 +1,19 @@
 import EventList from "./EventList";
-import { Grid } from "semantic-ui-react";
+import { Grid, Loader } from "semantic-ui-react";
 import { useDispatch, useSelector } from "react-redux";
 import EventListItemPlaceholder from "./EventListItemPlaceholder";
 import EventFilters from "./EventFilters";
-import { listenToEventsFromFirestore } from "../../../app/firestore/firestoreService";
-import { listenToEvents } from "../eventActions";
-import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
+import { clearEvents, fetchEvents } from "../eventActions";
 import { useState } from "react";
+import { useEffect } from "react";
 
 const EventDashBoard = () => {
+  const limit = 2;
   const dispatch = useDispatch();
-  const { events } = useSelector((state) => state.event);
+  const { events, moreEvents } = useSelector((state) => state.event);
   const { loading } = useSelector((state) => state.async);
+  const [lastDocSnapshot, setLastDocSnapshot] = useState(null);
+  const [loadingInitial, setLoadingInitial] = useState(false);
   const [predicate, setPredicate] = useState(
     new Map([
       ["startDate", new Date()],
@@ -20,25 +22,45 @@ const EventDashBoard = () => {
   );
 
   const handleSetPredicate = (key, value) => {
+    dispatch(clearEvents());
+    setLastDocSnapshot(null);
     setPredicate(new Map(predicate.set(key, value)));
   };
 
-  useFirestoreCollection({
-    query: () => listenToEventsFromFirestore(predicate),
-    data: (events) => dispatch(listenToEvents(events)),
-    deps: [dispatch, predicate],
-  });
+  const handleFetchNextEvents = () => {
+    dispatch(fetchEvents(predicate, limit, lastDocSnapshot)).then(
+      (lastVisible) => {
+        setLastDocSnapshot(lastVisible);
+      }
+    );
+  };
+
+  useEffect(() => {
+    dispatch(fetchEvents(predicate, limit)).then((lastVisible) => {
+      setLastDocSnapshot(lastVisible);
+      setLoadingInitial(false);
+    });
+
+    return () => {
+      dispatch(clearEvents());
+    };
+  }, [dispatch, predicate]);
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        {loading && (
+        {loadingInitial && (
           <>
             <EventListItemPlaceholder />
             <EventListItemPlaceholder />
           </>
         )}
-        <EventList events={events} />
+        <EventList
+          events={events}
+          getNextEvents={handleFetchNextEvents}
+          loading={loading}
+          moreEvents={moreEvents}
+        />
       </Grid.Column>
       <Grid.Column width={6}>
         <EventFilters
@@ -46,6 +68,9 @@ const EventDashBoard = () => {
           setPredicate={handleSetPredicate}
           loading={loading}
         />
+      </Grid.Column>
+      <Grid.Column width={10}>
+        <Loader active={loading} />
       </Grid.Column>
     </Grid>
   );

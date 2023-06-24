@@ -23,9 +23,17 @@ export const dataFromSnapshot = (snapshot) => {
   };
 };
 
-export const listenToEventsFromFirestore = (predicate) => {
+export const fetchEventsFromFirestore = (
+  predicate,
+  limit,
+  lastDocSnapshot = null
+) => {
   const user = firebase.auth().currentUser;
-  let eventsRef = database.collection("events").orderBy("date");
+  let eventsRef = database
+    .collection("events")
+    .orderBy("date")
+    .startAfter(lastDocSnapshot)
+    .limit(limit);
 
   switch (predicate.get("filter")) {
     case "isGoing":
@@ -142,11 +150,55 @@ export const getUserPhotos = (userUid) => {
 
 export const setMainPhoto = async (photo) => {
   const user = firebase.auth().currentUser;
+  const today = new Date();
+  const eventDocQuery = database
+    .collection("events")
+    .where("attendeeIds", "array-contains", user.uid)
+    .where("date", ">=", today);
+  const userFollowingRef = database
+    .collection("following")
+    .doc(user.uid)
+    .collection("userFollowing");
+
+  const batch = database.batch();
+
+  batch.update(database.collection("users").doc(user.uid), {
+    photoURL: photo.url,
+  });
 
   try {
-    await database.collection("users").doc(user.uid).update({
-      photoURL: photo.url,
+    const eventsQuerySnap = await eventDocQuery.get();
+    eventsQuerySnap.docs.forEach((eventDoc) => {
+      if (eventDoc.data().hostUid === user.uid) {
+        batch.update(eventDoc.ref, {
+          hostPhotoURL: photo.url,
+        });
+      }
+      batch.update(eventDoc.ref, {
+        attendees: eventDoc.data().attendees.filter((attendee) => {
+          if (attendee.id === user.uid) {
+            attendee.photoURL = photo.url;
+          }
+
+          return attendee;
+        }),
+      });
     });
+
+    const userFollowingSnap = await userFollowingRef.get();
+    userFollowingSnap.docs.forEach((docRef) => {
+      let followingDocRef = database
+        .collection("following")
+        .doc(docRef.id)
+        .collection("userFollowers")
+        .doc(user.uid);
+
+      batch.update(followingDocRef, {
+        photoURL: photo.url,
+      });
+    });
+
+    await batch.commit();
 
     return await user.updateProfile({
       photoURL: photo.url,
@@ -220,4 +272,78 @@ export const getUserEventsQuery = (activeTab, userUid) => {
         .where("date", ">=", today)
         .orderBy("date");
   }
+};
+
+export const followUser = async (profile) => {
+  const user = firebase.auth().currentUser;
+  const batch = database.batch();
+
+  try {
+    batch.set(
+      database
+        .collection("following")
+        .doc(user.uid)
+        .collection("userFollowing")
+        .doc(profile.id),
+      {
+        displayName: profile.displayName,
+        photoURL: profile.photoURL,
+        uid: profile.id,
+      }
+    );
+    batch.update(database.collection("users").doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(1),
+    });
+
+    return await batch.commit();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const unfollowUser = async (profile) => {
+  const user = firebase.auth().currentUser;
+  const batch = database.batch();
+
+  try {
+    batch.delete(
+      database
+        .collection("following")
+        .doc(user.uid)
+        .collection("userFollowing")
+        .doc(profile.id)
+    );
+    batch.update(database.collection("users").doc(user.uid), {
+      followingCount: firebase.firestore.FieldValue.increment(-1),
+    });
+
+    return await batch.commit();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getFollowersCollection = (profileId) => {
+  return database
+    .collection("following")
+    .doc(profileId)
+    .collection("userFollowers");
+};
+
+export const getFollowingCollection = (profileId) => {
+  return database
+    .collection("following")
+    .doc(profileId)
+    .collection("userFollowing");
+};
+
+export const getFollowingDoc = (profileId) => {
+  const userUid = firebase.auth().currentUser.uid;
+
+  return database
+    .collection("following")
+    .doc(userUid)
+    .collection("userFollowing")
+    .doc(profileId)
+    .get();
 };
