@@ -1,16 +1,25 @@
-import { useDispatch, useSelector } from "react-redux";
+// Semantic UI components
 import { Card, Grid, Header, Tab } from "semantic-ui-react";
+
+// Components
+import ProfileCard from "./ProfileCard";
+
+// library
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+
+// helpers
 import {
   getFollowersCollection,
   getFollowingCollection,
 } from "../../../app/firestore/firestoreService";
 import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { listenToFollowers, listenToFollowings } from "../profileActions";
-import ProfileCard from "./ProfileCard";
 
-const FollowingTab = ({ profile, activeTab }) => {
+function FollowingTab({ profile, activeTab }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { followings, followers } = useSelector((state) => state.profile);
+  const { followers, followings } = useSelector((state) => state.profile);
 
   useFirestoreCollection({
     query:
@@ -21,7 +30,7 @@ const FollowingTab = ({ profile, activeTab }) => {
       activeTab === 3
         ? dispatch(listenToFollowers(data))
         : dispatch(listenToFollowings(data)),
-    deps: [activeTab, dispatch],
+    deps: [dispatch, activeTab],
   });
 
   return (
@@ -31,7 +40,11 @@ const FollowingTab = ({ profile, activeTab }) => {
           <Header
             floated="left"
             icon="user"
-            content={activeTab === 3 ? "Followers" : "Following"}
+            content={
+              activeTab === 3
+                ? t("profile.panes.followers.label")
+                : t("profile.panes.following.label")
+            }
           />
         </Grid.Column>
         <Grid.Column width={16}>
@@ -40,7 +53,6 @@ const FollowingTab = ({ profile, activeTab }) => {
               followers.map((profile) => (
                 <ProfileCard profile={profile} key={profile.id} />
               ))}
-
             {activeTab === 4 &&
               followings.map((profile) => (
                 <ProfileCard profile={profile} key={profile.id} />
@@ -50,6 +62,6 @@ const FollowingTab = ({ profile, activeTab }) => {
       </Grid>
     </Tab.Pane>
   );
-};
+}
 
 export default FollowingTab;

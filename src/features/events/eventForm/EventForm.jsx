@@ -1,48 +1,67 @@
 /* global google */
+
+// Semantic UI components
 import { Segment, Header, Button, Confirm } from "semantic-ui-react";
-import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { listenToSelectedEvent } from "../eventActions";
-import { Formik, Form } from "formik";
+
+// Components
 import MyTextInput from "../../../app/common/form/MyTextInput";
-import * as Yup from "yup";
 import MyTextArea from "../../../app/common/form/MyTextArea";
 import MySelectInput from "../../../app/common/form/MySelectInput";
-import { categoryData } from "../../../app/api/categoryOptions";
 import MyDateInput from "../../../app/common/form/MyDateInput";
 import MyPlaceInput from "../../../app/common/form/MyPlaceInputs";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+
+// library
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form } from "formik";
+import { Redirect } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
+
+// helpers
+import { clearSelectedEvent, listenToSelectedEvent } from "../eventActions";
+import { getCategoryData } from "../../../app/api/categoryOptions";
 import {
   addEventToFirestore,
   listenToEventFromFirestore,
   updateEventInFirestore,
   cancelEventToggle,
+  deleteEventInFirestore,
 } from "../../../app/firestore/firestoreService";
 import useFirestoreDoc from "../../../app/hooks/useFirestoreDoc";
-import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { Redirect } from "react-router-dom";
-import { toast } from "react-toastify";
-import { useState } from "react";
 
-const EventForm = ({ match, history }) => {
+function EventForm({ match, history, location }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
+  const categories = getCategoryData();
+
   const [loadingCancel, setLoadingCancel] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [confirmToggleOpen, setConfirmToggleOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const { selectedEvent } = useSelector((state) => state.event);
-
   const { loading, error } = useSelector((state) => state.async);
+  const { prevLocation } = useSelector((state) => state.auth);
 
-  const initialValues = selectedEvent || {
+  useEffect(() => {
+    if (location.pathname !== "/createEvent") return;
+    dispatch(clearSelectedEvent());
+  }, [dispatch, location.pathname]);
+
+  const defaultValues = selectedEvent || {
     title: "",
     category: "",
     description: "",
     city: {
       address: "",
-      latLng: null,
+      latLng: "",
     },
     venue: {
       address: "",
-      latLng: null,
+      latLng: "",
     },
     date: "",
   };
@@ -60,66 +79,105 @@ const EventForm = ({ match, history }) => {
     date: Yup.string().required(),
   });
 
-  const handleCancelToggle = async (event) => {
-    setConfirmOpen(false);
+  const handleCancelClick = () => {
+    return history && prevLocation
+      ? history.push(prevLocation.pathname)
+      : history.goBack();
+  };
+
+  async function handleCancelToggle(event) {
+    setConfirmToggleOpen(false);
     setLoadingCancel(true);
+
     try {
       await cancelEventToggle(event);
+      toast.success(
+        event.isCancelled
+          ? t("form.message.eventReactivated")
+          : t("form.message.eventCancelled")
+      );
       setLoadingCancel(false);
     } catch (error) {
       setLoadingCancel(true);
       toast.error(error.message);
     }
-  };
+  }
+
+  async function handleDeleteEvent(event) {
+    setConfirmDeleteOpen(false);
+    setLoadingDelete(true);
+
+    try {
+      await deleteEventInFirestore(event.id);
+      toast.success(t("form.message.eventDeleted"));
+      setLoadingDelete(false);
+      history.push("/events");
+    } catch (err) {
+      setLoadingDelete(true);
+      toast.error(err.message);
+    }
+  }
+
+  async function handleFormSubmit(values, { setSubmitting }) {
+    try {
+      if (selectedEvent) {
+        await updateEventInFirestore(values);
+        toast.success(t("form.message.eventUpdated"));
+      } else {
+        await addEventToFirestore(values);
+        toast.success(t("form.message.eventCreated"));
+      }
+      setSubmitting(false);
+      history.push("/events");
+    } catch (err) {
+      toast.error(err.message);
+      setSubmitting(false);
+    }
+  }
 
   useFirestoreDoc({
     query: () => listenToEventFromFirestore(match.params.id),
     data: (event) => dispatch(listenToSelectedEvent(event)),
     deps: [match.params.id, dispatch],
-    shouldExecute: !!match.params.id,
+    shouldExecute:
+      match.params.id !== selectedEvent?.id &&
+      location.pathname !== "/createEvent",
   });
 
-  if (loading) {
-    return <LoadingComponent content="Loading event..." />;
-  }
-
-  if (error) {
-    return <Redirect to="/error" />;
-  }
+  if (loading) return <LoadingComponent content={t("event.loading")} />;
+  if (error) return <Redirect to="/error" />;
 
   return (
     <Segment clearing>
       <Formik
-        initialValues={initialValues}
+        enableReinitialize
+        initialValues={defaultValues}
         validationSchema={validationSchema}
-        onSubmit={async (values, { setSubmitting }) => {
-          try {
-            selectedEvent
-              ? await updateEventInFirestore(values)
-              : await addEventToFirestore(values);
-            setSubmitting(false);
-            history.push("/events");
-          } catch (error) {
-            toast.error(error.message);
-            setSubmitting(false);
-          }
-        }}
+        onSubmit={handleFormSubmit}
       >
         {({ isSubmitting, dirty, isValid, values }) => (
           <Form className="ui form">
-            <Header sub color="teal" content="Event Details" />
-            <MyTextInput name="title" placeholder="Event Title" />
+            <Header sub color="teal" content={t("event.header.details")} />
+            <MyTextInput name="title" placeholder={t("event.field.title")} />
             <MySelectInput
               name="category"
-              placeholder="Category"
-              options={categoryData}
+              placeholder={t("event.field.category")}
+              options={categories}
             />
-            <MyTextArea name="description" placeholder="Description" rows="2" />
-            <Header sub color="teal" content="Event Location Details" />
-            <MyPlaceInput name="city" placeholder="City" />
+            <MyTextArea
+              name="description"
+              placeholder={t("event.field.description")}
+              rows={4}
+            />
+            <Header
+              sub
+              color="teal"
+              content={t("event.header.locationDetails")}
+            />
+            <MyPlaceInput name="city" placeholder={t("event.field.city")} />
             <MyPlaceInput
               name="venue"
-              placeholder="Venue"
+              placeholder={t("event.field.venue")}
               disabled={!values.city.latLng}
               options={{
                 location: new google.maps.LatLng(values.city.latLng),
@@ -129,57 +187,77 @@ const EventForm = ({ match, history }) => {
             />
             <MyDateInput
               name="date"
-              placeholderText="Event Date"
+              placeholderText={t("event.field.date")}
               timeFormat="HH:mm"
               showTimeSelect
               timeCaption="time"
               dateFormat="MMMM d, yyyy h:mm a"
+              autoComplete="off"
             />
             {selectedEvent && (
-              <Button
-                loading={loadingCancel}
-                type="button"
-                floated="left"
-                color={selectedEvent.isCancelled ? "green" : "red"}
-                content={
-                  selectedEvent.isCancelled
-                    ? "Reactivate Event"
-                    : "Cancel Event"
-                }
-                onClick={() => setConfirmOpen(true)}
-              />
+              <>
+                <Button
+                  loading={loadingCancel}
+                  type="button"
+                  floated="left"
+                  color={selectedEvent.isCancelled ? "green" : "red"}
+                  content={
+                    selectedEvent.isCancelled
+                      ? t("form.button.reactivateEvent")
+                      : t("form.button.cancelEvent")
+                  }
+                  onClick={() => setConfirmToggleOpen(true)}
+                />
+                <Button
+                  loading={loadingDelete}
+                  type="button"
+                  floated="left"
+                  color="red"
+                  content={t("form.button.deleteEvent")}
+                  onClick={() => setConfirmDeleteOpen(true)}
+                />
+              </>
             )}
             <Button
+              positive
+              type="submit"
+              floated="right"
               loading={isSubmitting}
               disabled={!isValid || !dirty || isSubmitting}
-              type="submit"
-              floated="right"
-              positive
-              content="Submit"
+              content={
+                selectedEvent
+                  ? t("form.button.update")
+                  : t("form.button.create")
+              }
             />
             <Button
-              disabled={isSubmitting}
-              as={Link}
-              to="/events"
               type="submit"
               floated="right"
-              content="Cancel"
+              disabled={isSubmitting}
+              content={t("form.button.cancel")}
+              onClick={handleCancelClick}
             />
           </Form>
         )}
       </Formik>
       <Confirm
+        open={confirmToggleOpen}
+        onCancel={() => setConfirmToggleOpen(false)}
+        onConfirm={() => handleCancelToggle(selectedEvent)}
         content={
           selectedEvent?.isCancelled
-            ? "This will reactivate the event - are you sure?"
-            : "This will cancel the event - are you sure?"
+            ? t("event.message.reactivateEvent")
+            : t("event.message.cancelEvent")
         }
-        open={confirmOpen}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => handleCancelToggle(selectedEvent)}
+      />
+      <Confirm
+        open={confirmDeleteOpen}
+        onCancel={() => setConfirmDeleteOpen(false)}
+        onConfirm={() => handleDeleteEvent(selectedEvent)}
+        content={t("event.message.deleteEvent")}
       />
     </Segment>
   );
-};
+}
 
 export default EventForm;

@@ -1,7 +1,10 @@
-import { useField } from "formik";
+// Semantic UI components
 import { FormField, Label } from "semantic-ui-react";
 
-const MyTextInput = ({ label, ...props }) => {
+// library
+import { useField } from "formik";
+
+function MyTextInput({ label, ...props }) {
   const [field, meta] = useField(props);
 
   return (
@@ -15,6 +18,6 @@ const MyTextInput = ({ label, ...props }) => {
       ) : null}
     </FormField>
   );
-};
+}
 
 export default MyTextInput;

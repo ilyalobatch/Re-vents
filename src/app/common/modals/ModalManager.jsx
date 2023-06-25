@@ -1,11 +1,12 @@
-import { useSelector } from "react-redux";
-import TestModal from "../../../features/sandbox/TestModal";
+// Components
 import LoginForm from "../../../features/auth/LoginForm";
 import RegisterForm from "../../../features/auth/RegisterForm";
 
-const ModalManager = () => {
+// library
+import { useSelector } from "react-redux";
+
+function ModalManager() {
   const modalLookup = {
-    TestModal,
     LoginForm,
     RegisterForm,
   };
@@ -18,6 +19,6 @@ const ModalManager = () => {
   }
 
   return <span>{renderedModal}</span>;
-};
+}
 
 export default ModalManager;

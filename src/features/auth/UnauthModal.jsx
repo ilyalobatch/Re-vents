@@ -1,10 +1,17 @@
+// Semantic UI components
 import { Button, Divider, Modal } from "semantic-ui-react";
-import { useDispatch, useSelector } from "react-redux";
-import { openModal } from "../../app/common/modals/modalReducer";
-import { useState } from "react";
 
-const UnauthModal = ({ history, setModalOpen }) => {
+// library
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+// helpers
+import { openModal } from "../../app/common/modals/modalReducer";
+
+function UnauthModal({ history, setModalOpen }) {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { prevLocation } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(true);
 
@@ -31,32 +38,32 @@ const UnauthModal = ({ history, setModalOpen }) => {
 
   return (
     <Modal open={open} size="mini" onClose={handleClose}>
-      <Modal.Header content="You need to be signed in to do that" />
+      <Modal.Header content={t("modal.message.unauthorized")} />
       <Modal.Content>
-        <p>Please either login or register to see this content</p>
+        <p>{t("modal.message.loginOrRegister")}</p>
         <Button.Group widths={4}>
           <Button
             fluid
             color="teal"
-            content="Login"
+            content={t("modal.button.login")}
             onClick={() => handleOpenLoginModal("LoginForm")}
           />
           <Button.Or />
           <Button
             fluid
             color="green"
-            content="Register"
-            onClick={() => handleOpenLoginModal("RegisterForm")}
+            content={t("modal.button.register")}
+            onClick={() => dispatch(openModal({ modalType: "RegisterForm" }))}
           />
         </Button.Group>
         <Divider />
         <div style={{ textAlign: "center" }}>
-          <p>Or click cancel to continue as a guest</p>
-          <Button content="Cancel" onClick={handleClose} />
+          <p>{t("modal.message.continueAsGuest")}</p>
+          <Button onClick={handleClose} content={t("form.button.cancel")} />
         </div>
       </Modal.Content>
     </Modal>
   );
-};
+}
 
 export default UnauthModal;

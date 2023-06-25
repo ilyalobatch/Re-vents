@@ -1,9 +1,15 @@
-import { Link } from "react-router-dom";
+// Semantic UI components
 import { Segment, Item, Label } from "semantic-ui-react";
 
-const EventDetailedSideBar = ({ attendees, hostUid }) => {
+// library
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+
+function EventDetailedSideBar({ attendees, hostUid }) {
+  const { t } = useTranslation();
+
   return (
-    <>
+    <Segment.Group className="eventSidebar">
       <Segment
         textAlign="center"
         style={{ border: "none" }}
@@ -12,7 +18,10 @@ const EventDetailedSideBar = ({ attendees, hostUid }) => {
         inverted
         color="teal"
       >
-        {attendees.length} {attendees.length > 1 ? "People" : "Person"} Going
+        {t("event.message.attendeeGoing", {
+          count: attendees.length,
+          defaultValue: "{{count}} Person Going",
+        })}
       </Segment>
       <Segment attached>
         <Item.Group relaxed divided>
@@ -20,7 +29,7 @@ const EventDetailedSideBar = ({ attendees, hostUid }) => {
             <Item
               as={Link}
               to={`/profile/${attendee.id}`}
-              key={`attendee-${attendee.id}`}
+              key={attendee.id}
               style={{ position: "relative" }}
             >
               {hostUid === attendee.id && (
@@ -44,8 +53,8 @@ const EventDetailedSideBar = ({ attendees, hostUid }) => {
           ))}
         </Item.Group>
       </Segment>
-    </>
+    </Segment.Group>
   );
-};
+}
 
 export default EventDetailedSideBar;

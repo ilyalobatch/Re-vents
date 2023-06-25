@@ -1,10 +1,18 @@
+// Semantic UI components
+import { Loader } from "semantic-ui-react";
+
+// library
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
-import { Loader } from "semantic-ui-react";
-import { addEventChatComment } from "../../../app/firestore/firebaseService";
+import { useTranslation } from "react-i18next";
 import * as Yup from "yup";
 
-const EventDetailedChatForm = ({ eventId, parentId, closeForm }) => {
+// helpers
+import { addEventChatComment } from "../../../app/firestore/firebaseService";
+
+function EventDetailedChatForm({ eventId, parentId, closeForm }) {
+  const { t } = useTranslation();
+
   return (
     <Formik
       initialValues={{ comment: "" }}
@@ -19,7 +27,7 @@ const EventDetailedChatForm = ({ eventId, parentId, closeForm }) => {
           toast.error(error.message);
         } finally {
           setSubmitting(false);
-          closeForm({ open: false, commentId: null });
+          closeForm();
         }
       }}
     >
@@ -32,17 +40,15 @@ const EventDetailedChatForm = ({ eventId, parentId, closeForm }) => {
                 <textarea
                   rows="2"
                   {...field}
-                  placeholder="Enter your comment (Enter to submit, SHIFT + Enter for new line)"
+                  placeholder={t("event.chat.textareaHint")}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" && e.shiftKey) {
-                      return;
-                    }
+                    if (e.key === "Enter" && e.shiftKey) return;
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
                       isValid && handleSubmit();
                     }
                   }}
-                ></textarea>
+                />
               </div>
             )}
           </Field>
@@ -50,6 +56,6 @@ const EventDetailedChatForm = ({ eventId, parentId, closeForm }) => {
       )}
     </Formik>
   );
-};
+}
 
 export default EventDetailedChatForm;

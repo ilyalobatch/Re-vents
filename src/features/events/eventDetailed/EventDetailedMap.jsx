@@ -1,9 +1,12 @@
+// Semantic UI components
 import { Segment, Icon } from "semantic-ui-react";
+
+// library
 import GoogleMapReact from "google-map-react";
 
-const Marker = () => {
+function Marker() {
   return <Icon name="marker" size="big" color="red" />;
-};
+}
 
 const EventDetailedMap = ({ latLng }) => {
   const zoom = 14;

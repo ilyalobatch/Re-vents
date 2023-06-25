@@ -1,9 +1,12 @@
+// library
 import { applyMiddleware, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension";
-import rootReducer from "./rootReducer";
 import thunk from "redux-thunk";
-import { verifyAuth } from "../../features/auth/authActions";
 import { createBrowserHistory } from "history";
+
+// helpers
+import { verifyAuth } from "../../features/auth/authActions";
+import rootReducer from "./rootReducer";
 
 export const history = createBrowserHistory();
 

@@ -1,25 +1,30 @@
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+// Semantic UI components
 import { Button, Header, Segment } from "semantic-ui-react";
 
-const ErrorComponent = () => {
+// library
+import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+
+function ErrorComponent() {
+  const { t } = useTranslation();
   const { error } = useSelector((state) => state.async);
 
   return (
     <Segment placeholder>
       <Header
         textAlign="center"
-        content={error?.message || "Unknown error occured"}
+        content={error?.message || t("errors.default")}
       />
       <Button
+        primary
         as={Link}
         to="/events"
-        primary
         style={{ marginTop: 20 }}
-        content="Return to events page"
+        content={t("common.returnToEvents")}
       />
     </Segment>
   );
-};
+}
 
 export default ErrorComponent;

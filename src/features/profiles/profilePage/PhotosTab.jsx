@@ -1,8 +1,16 @@
+// Semantic UI components
+import { Button, Card, Grid, Header, Image, Tab } from "semantic-ui-react";
+
+// Components
+import PhotoUploadWidget from "../../../app/common/photos/PhotoUploadWidget";
+
+// library
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { Button, Card, Grid, Header, Image, Tab } from "semantic-ui-react";
-import PhotoUploadWidget from "../../../app/common/photos/PhotoUploadWidget";
+
+// helpers
 import { deleteFromFirebaseStorage } from "../../../app/firestore/firebaseService";
 import {
   deletePhotoFromCollection,
@@ -12,14 +20,16 @@ import {
 import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { listenToUserPhotos } from "../profileActions";
 
-const PhotosTab = ({ profile, isCurrentUser }) => {
+function PhotosTab({ profile, isCurrentUser }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
-  const [editMode, setEditMode] = useState(false);
-  const [updating, setUpdating] = useState({ isUpdating: false, target: null });
-  const [deleting, setDeleting] = useState({ isDeleting: false, target: null });
 
   const { loading } = useSelector((state) => state.async);
   const { photos } = useSelector((state) => state.profile);
+
+  const [editMode, setEditMode] = useState(false);
+  const [updating, setUpdating] = useState({ isUpdating: false, target: null });
+  const [deleting, setDeleting] = useState({ isDeleting: false, target: null });
 
   useFirestoreCollection({
     query: () => getUserPhotos(profile.id),
@@ -27,9 +37,8 @@ const PhotosTab = ({ profile, isCurrentUser }) => {
     deps: [profile.id, dispatch],
   });
 
-  const handleSetMainPhoto = async (photo, target) => {
+  async function handleSetMainPhoto(photo, target) {
     setUpdating({ isUpdating: true, target });
-
     try {
       await setMainPhoto(photo);
     } catch (error) {
@@ -37,11 +46,10 @@ const PhotosTab = ({ profile, isCurrentUser }) => {
     } finally {
       setUpdating({ isUpdating: false, target: null });
     }
-  };
+  }
 
-  const handleDeletePhoto = async (photo, target) => {
+  async function handleDeletePhoto(photo, target) {
     setDeleting({ isDeleting: true, target });
-
     try {
       await deleteFromFirebaseStorage(photo.name);
       await deletePhotoFromCollection(photo.id);
@@ -50,19 +58,27 @@ const PhotosTab = ({ profile, isCurrentUser }) => {
     } finally {
       setDeleting({ isDeleting: false, target: null });
     }
-  };
+  }
 
   return (
     <Tab.Pane loading={loading}>
       <Grid>
         <Grid.Column width={16}>
-          <Header floated="left" icon="user" content="Photos" />
+          <Header
+            floated="left"
+            icon="user"
+            content={t("profile.panes.photos.label")}
+          />
           {isCurrentUser && (
             <Button
               onClick={() => setEditMode(!editMode)}
               floated="right"
               basic
-              content={editMode ? "Cancel" : "Add Photo"}
+              content={
+                editMode
+                  ? t("profile.panes.photos.cancelEdit")
+                  : t("profile.panes.photos.edit")
+              }
             />
           )}
         </Grid.Column>
@@ -73,32 +89,29 @@ const PhotosTab = ({ profile, isCurrentUser }) => {
             <Card.Group itemsPerRow={5}>
               {photos.map((photo) => (
                 <Card key={photo.id}>
-                  <Image
-                    src={photo.url}
-                    style={{ width: 150, height: 150, objectFit: "cover" }}
-                  />
-                  <Button.Group fluid widths={2} attached="top">
+                  <Image src={photo.url} wrapped />
+                  <Button.Group fluid widths={2}>
                     <Button
                       name={photo.id}
                       loading={
                         updating.isUpdating && updating.target === photo.id
                       }
-                      disabled={photo.url === profile.photoURL}
-                      onClick={(e) => handleSetMainPhoto(photo, e.target.name)}
                       basic
                       color="green"
-                      content="Main"
+                      content={t("profile.panes.photos.main")}
+                      disabled={photo.url === profile.photoURL}
+                      onClick={(e) => handleSetMainPhoto(photo, e.target.name)}
                     />
                     <Button
                       name={photo.id}
                       loading={
                         deleting.isDeleting && deleting.target === photo.id
                       }
-                      disabled={photo.url === profile.photoURL}
-                      onClick={(e) => handleDeletePhoto(photo, e.target.name)}
                       basic
                       color="red"
                       icon="trash"
+                      disabled={photo.url === profile.photoURL}
+                      onClick={(e) => handleDeletePhoto(photo, e.target.name)}
                     />
                   </Button.Group>
                 </Card>
@@ -109,6 +122,6 @@ const PhotosTab = ({ profile, isCurrentUser }) => {
       </Grid>
     </Tab.Pane>
   );
-};
+}
 
 export default PhotosTab;

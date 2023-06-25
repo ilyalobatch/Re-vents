@@ -1,20 +1,31 @@
+// Semantic UI components
 import { Grid } from "semantic-ui-react";
-import { useDispatch, useSelector } from "react-redux";
+
+// Components
 import EventDetailedChat from "./EventDetailedChat";
 import EventDetailedHeader from "./EventDetailedHeader";
 import EventDetailedInfo from "./EventDetailedInfo";
 import EventDetailedSideBar from "./EventDetailedSideBar";
+import LoadingComponent from "../../../app/layout/LoadingComponent";
+
+// library
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+// helpers
 import useFirestoreDoc from "../../../app/hooks/useFirestoreDoc";
 import { listenToEventFromFirestore } from "../../../app/firestore/firestoreService";
-import LoadingComponent from "../../../app/layout/LoadingComponent";
-import { Redirect } from "react-router-dom";
 import { listenToSelectedEvent } from "../eventActions";
 
-const EventDetailedPage = ({ match, hostUid }) => {
+function EventDetailedPage({ match }) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.auth);
+
   const event = useSelector((state) => state.event.selectedEvent);
+  const { currentUser } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.async);
+
   const isHost = event?.hostUid === currentUser?.uid;
   const isGoing = event?.attendees?.some(
     (attendee) => attendee.id === currentUser?.uid
@@ -22,12 +33,12 @@ const EventDetailedPage = ({ match, hostUid }) => {
 
   useFirestoreDoc({
     query: () => listenToEventFromFirestore(match.params.id),
-    data: (event) => dispatch(listenToSelectedEvent(event)),
+    data: (evt) => dispatch(listenToSelectedEvent(evt)),
     deps: [match.params.id, dispatch],
   });
 
   if (loading || (!event && !error)) {
-    return <LoadingComponent content="Loading event..." />;
+    return <LoadingComponent content={t("event.loading")} />;
   }
 
   if (error) {
@@ -35,7 +46,7 @@ const EventDetailedPage = ({ match, hostUid }) => {
   }
 
   return (
-    <Grid>
+    <Grid className="eventDetailView">
       <Grid.Column width={10}>
         <EventDetailedHeader event={event} isGoing={isGoing} isHost={isHost} />
         <EventDetailedInfo event={event} />
@@ -43,12 +54,12 @@ const EventDetailedPage = ({ match, hostUid }) => {
       </Grid.Column>
       <Grid.Column width={6}>
         <EventDetailedSideBar
-          attendees={event?.attendees}
+          attendees={event.attendees}
           hostUid={event.hostUid}
         />
       </Grid.Column>
     </Grid>
   );
-};
+}
 
 export default EventDetailedPage;

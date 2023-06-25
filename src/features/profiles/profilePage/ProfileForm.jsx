@@ -1,16 +1,26 @@
-import { Form, Formik } from "formik";
+// Semantic UI components
 import { Button } from "semantic-ui-react";
+
+// Components
 import MyTextArea from "../../../app/common/form/MyTextArea";
 import MyTextInput from "../../../app/common/form/MyTextInput";
-import * as Yup from "yup";
+
+// library
+import { Form, Formik } from "formik";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
+
+// helpers
 import { updateUserProfile } from "../../../app/firestore/firestoreService";
 
-const ProfileForm = ({ profile, setEditMode }) => {
+function ProfileForm({ profile }) {
+  const { t } = useTranslation();
+
   return (
     <Formik
       initialValues={{
-        displayName: profile.displayName,
+        displayName: profile.displayName || "",
         description: profile.description || "",
       }}
       validationSchema={Yup.object({
@@ -19,7 +29,6 @@ const ProfileForm = ({ profile, setEditMode }) => {
       onSubmit={async (values, { setSubmitting }) => {
         try {
           await updateUserProfile(values);
-          setEditMode(false);
         } catch (error) {
           toast.error(error.message);
         } finally {
@@ -27,23 +36,28 @@ const ProfileForm = ({ profile, setEditMode }) => {
         }
       }}
     >
-      {({ isSubmitting, isValid, dirty }) => (
+      {({ isSubmitting, dirty, isValid }) => (
         <Form className="ui form">
-          <MyTextInput name="displayName" placeholder="Display Name" />
-          <MyTextArea name="description" placeholder="Description" />
+          <MyTextInput
+            name="displayName"
+            placeholder={t("profile.field.displayName")}
+          />
+          <MyTextArea
+            name="description"
+            placeholder={t("profile.field.description")}
+          />
           <Button
             loading={isSubmitting}
-            disabled={isSubmitting || !isValid || !dirty}
+            disabled={isSubmitting || !dirty || !isValid}
             floated="right"
-            type="submit"
-            size="large"
             positive
-            content="Update profile"
+            size="large"
+            content={t("profile.button.updateProfile")}
           />
         </Form>
       )}
     </Formik>
   );
-};
+}
 
 export default ProfileForm;

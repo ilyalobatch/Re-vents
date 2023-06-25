@@ -1,11 +1,14 @@
-import { useField } from "formik";
+// Semantic UI components
 import { FormField, Label, Segment, List } from "semantic-ui-react";
+
+// library
+import { useField } from "formik";
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from "react-places-autocomplete";
 
-const MyPlaceInput = ({ label, options, ...props }) => {
+function MyPlaceInput({ label, options, ...props }) {
   const [field, meta, helpers] = useField(props);
 
   const handleSelect = (address) => {
@@ -55,7 +58,10 @@ const MyPlaceInput = ({ label, options, ...props }) => {
             >
               <List selection>
                 {suggestions.map((suggestion) => (
-                  <List.Item {...getSuggestionItemProps(suggestion)}>
+                  <List.Item
+                    {...getSuggestionItemProps(suggestion)}
+                    key={suggestion.placeId}
+                  >
                     <List.Header>
                       {suggestion.formattedSuggestion.mainText}
                     </List.Header>
@@ -71,6 +77,6 @@ const MyPlaceInput = ({ label, options, ...props }) => {
       )}
     </PlacesAutocomplete>
   );
-};
+}
 
 export default MyPlaceInput;

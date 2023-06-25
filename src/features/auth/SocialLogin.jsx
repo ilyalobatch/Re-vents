@@ -1,9 +1,16 @@
-import { useDispatch } from "react-redux";
+// Semantic UI components
 import { Button } from "semantic-ui-react";
+
+// library
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+
+// helpers
 import { closeModal } from "../../app/common/modals/modalReducer";
 import { socialLogin } from "../../app/firestore/firebaseService";
 
-const SocialLogin = () => {
+function SocialLogin() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const handleSocialLogin = (provider) => {
@@ -14,22 +21,22 @@ const SocialLogin = () => {
   return (
     <>
       <Button
-        onClick={() => handleSocialLogin("facebook")}
-        icon="facebook"
         fluid
+        icon="facebook"
         color="facebook"
         style={{ marginBottom: 10 }}
-        content="Login with Facebook"
+        content={t("modal.social.facebookLogin")}
+        onClick={() => handleSocialLogin("facebook")}
       />
       <Button
-        onClick={() => handleSocialLogin("google")}
-        icon="google"
         fluid
+        icon="google"
         color="google plus"
-        content="Login with Google"
+        content={t("modal.social.googleLogin")}
+        onClick={() => handleSocialLogin("google")}
       />
     </>
   );
-};
+}
 
 export default SocialLogin;

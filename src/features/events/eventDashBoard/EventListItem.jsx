@@ -1,10 +1,17 @@
-import { Segment, Item, Icon, List, Button, Label } from "semantic-ui-react";
-import { Link } from "react-router-dom";
-import EventListAttendee from "./EventListAttendee";
-import { format } from "date-fns";
-import { deleteEventInFirestore } from "../../../app/firestore/firestoreService";
+// Semantic UI components
+import { Icon, Item, List, Segment, Button, Label } from "semantic-ui-react";
 
-const EventListItem = ({ event }) => {
+// Components
+import EventListAttendee from "./EventListAttendee";
+
+// library
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+
+function EventListItem({ event }) {
+  const { t } = useTranslation();
+
   return (
     <Segment.Group>
       <Segment>
@@ -14,7 +21,7 @@ const EventListItem = ({ event }) => {
             <Item.Content>
               <Item.Header content={event.title} />
               <Item.Description>
-                Hosted by
+                {t("event.hostedBy")}
                 <Link
                   to={`/profile/${event.hostUid}`}
                 >{` ${event.hostedBy}`}</Link>
@@ -24,7 +31,7 @@ const EventListItem = ({ event }) => {
                   style={{ top: "-40px" }}
                   ribbon="right"
                   color="red"
-                  content="This event has been cancelled"
+                  content={t("event.cancelledLabel")}
                 />
               )}
             </Item.Content>
@@ -39,29 +46,23 @@ const EventListItem = ({ event }) => {
       </Segment>
       <Segment secondary>
         <List horizontal>
-          {event.attendees.map((attendee) => {
-            return <EventListAttendee key={attendee.id} attendee={attendee} />;
-          })}
+          {event.attendees.map((attendee) => (
+            <EventListAttendee key={attendee.id} attendee={attendee} />
+          ))}
         </List>
       </Segment>
       <Segment clearing>
         <div>{event.description}</div>
         <Button
-          onClick={() => deleteEventInFirestore(event.id)}
-          color="red"
           floated="right"
-          content="Delete"
-        />
-        <Button
+          color="teal"
+          content={t("event.button.view")}
           as={Link}
           to={`/events/${event.id}`}
-          color="teal"
-          floated="right"
-          content="View"
         />
       </Segment>
     </Segment.Group>
   );
-};
+}
 
 export default EventListItem;

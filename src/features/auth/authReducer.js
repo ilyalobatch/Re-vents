@@ -1,4 +1,4 @@
-import { SIGN_IN_USER, SIGN_OUT_USER } from "./authConstants";
+import { SIGN_IN_USER, SIGN_OUT_USER, SWITCH_LANGUAGE } from "./authConstants";
 import { LOCATION_CHANGE } from "connected-react-router";
 
 const initialState = {
@@ -35,6 +35,12 @@ const authReducer = (state = initialState, { type, payload }) => {
         ...state,
         prevLocation: state.currentLocation,
         currentLocation: payload.location,
+      };
+
+    case SWITCH_LANGUAGE:
+      return {
+        ...state,
+        lang: payload,
       };
 
     default:

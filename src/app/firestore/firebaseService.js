@@ -1,4 +1,7 @@
+// library
 import { toast } from "react-toastify";
+
+// helpers
 import firebase from "../../app/config/firebase";
 import { setUserProfileData } from "./firestoreService";
 

@@ -1,50 +1,45 @@
-import EventList from "./EventList";
+// Semantic UI components
 import { Grid, Loader } from "semantic-ui-react";
-import { useDispatch, useSelector } from "react-redux";
+
+// Components
+import EventList from "./EventList";
 import EventListItemPlaceholder from "./EventListItemPlaceholder";
 import EventFilters from "./EventFilters";
-import { clearEvents, fetchEvents } from "../eventActions";
-import { useState } from "react";
-import { useEffect } from "react";
 
-const EventDashBoard = () => {
+// library
+import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { RETAIN_STATE } from "../eventConstants";
+
+// helpers
+import { fetchEvents } from "../eventActions";
+
+function EventDashBoard() {
   const limit = 2;
   const dispatch = useDispatch();
-  const { events, moreEvents } = useSelector((state) => state.event);
-  const { loading } = useSelector((state) => state.async);
-  const [lastDocSnapshot, setLastDocSnapshot] = useState(null);
-  const [loadingInitial, setLoadingInitial] = useState(false);
-  const [predicate, setPredicate] = useState(
-    new Map([
-      ["startDate", new Date()],
-      ["filter", "all"],
-    ])
-  );
 
-  const handleSetPredicate = (key, value) => {
-    dispatch(clearEvents());
-    setLastDocSnapshot(null);
-    setPredicate(new Map(predicate.set(key, value)));
-  };
+  const { events, moreEvents, filter, startDate, lastVisible, retainState } =
+    useSelector((state) => state.event);
+  const { loading } = useSelector((state) => state.async);
+
+  const [loadingInitial, setLoadingInitial] = useState(false);
 
   const handleFetchNextEvents = () => {
-    dispatch(fetchEvents(predicate, limit, lastDocSnapshot)).then(
-      (lastVisible) => {
-        setLastDocSnapshot(lastVisible);
-      }
-    );
+    dispatch(fetchEvents(filter, startDate, limit, lastVisible));
   };
 
   useEffect(() => {
-    dispatch(fetchEvents(predicate, limit)).then((lastVisible) => {
-      setLastDocSnapshot(lastVisible);
+    if (retainState) {
+      return;
+    }
+    dispatch(fetchEvents(filter, startDate, limit)).then(() => {
       setLoadingInitial(false);
     });
 
     return () => {
-      dispatch(clearEvents());
+      dispatch({ type: RETAIN_STATE });
     };
-  }, [dispatch, predicate]);
+  }, [dispatch, filter, startDate, retainState]);
 
   return (
     <Grid>
@@ -63,17 +58,13 @@ const EventDashBoard = () => {
         />
       </Grid.Column>
       <Grid.Column width={6}>
-        <EventFilters
-          predicate={predicate}
-          setPredicate={handleSetPredicate}
-          loading={loading}
-        />
+        <EventFilters loading={loading} />
       </Grid.Column>
       <Grid.Column width={10}>
         <Loader active={loading} />
       </Grid.Column>
     </Grid>
   );
-};
+}
 
 export default EventDashBoard;

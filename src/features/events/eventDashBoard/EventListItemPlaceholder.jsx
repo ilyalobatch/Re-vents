@@ -1,6 +1,7 @@
+// Semantic UI components
 import { Segment, Button, Placeholder } from "semantic-ui-react";
 
-const EventListItemPlaceholder = () => {
+function EventListItemPlaceholder() {
   return (
     <Placeholder fluid>
       <Segment.Group>
@@ -28,6 +29,6 @@ const EventListItemPlaceholder = () => {
       </Segment.Group>
     </Placeholder>
   );
-};
+}
 
 export default EventListItemPlaceholder;

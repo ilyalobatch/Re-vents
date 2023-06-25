@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom";
-import { Card, Image} from "semantic-ui-react";
+// Semantic UI components
+import { Card, Image } from "semantic-ui-react";
 
-const ProfileCard = ({ profile }) => {
+// library
+import { Link } from "react-router-dom";
+
+function ProfileCard({ profile }) {
   return (
     <Card as={Link} to={`/profile/${profile.id}`}>
       <Image src={profile.photoURL || "/assets/user.png"} />
@@ -10,6 +13,6 @@ const ProfileCard = ({ profile }) => {
       </Card.Content>
     </Card>
   );
-};
+}
 
 export default ProfileCard;

@@ -1,14 +1,20 @@
+// Semantic UI components
 import { Segment, Grid, Icon, Button } from "semantic-ui-react";
 
-import { format } from "date-fns";
+// Components
 import EventDetailedMap from "./EventDetailedMap";
-import { useState } from "react";
 
-const EventDetailedInfo = ({ event }) => {
-  const [mapOpen, setMapOpenToggle] = useState(false);
+// library
+import { format } from "date-fns";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+function EventDetailedInfo({ event }) {
+  const { t } = useTranslation();
+  const [mapOpen, setMapOpen] = useState(false);
 
   return (
-    <Segment.Group>
+    <Segment.Group className="eventInfo">
       <Segment attached="top">
         <Grid>
           <Grid.Column width={1}>
@@ -39,10 +45,12 @@ const EventDetailedInfo = ({ event }) => {
           </Grid.Column>
           <Grid.Column width={4}>
             <Button
-              onClick={() => setMapOpenToggle(!mapOpen)}
               color="teal"
               size="tiny"
-              content={mapOpen ? "Hide Map" : "Show Map"}
+              content={
+                mapOpen ? t("event.button.hideMap") : t("event.button.showMap")
+              }
+              onClick={() => setMapOpen(!mapOpen)}
             />
           </Grid.Column>
         </Grid>
@@ -50,6 +58,6 @@ const EventDetailedInfo = ({ event }) => {
       {mapOpen && <EventDetailedMap latLng={event.venue.latLng} />}
     </Segment.Group>
   );
-};
+}
 
 export default EventDetailedInfo;

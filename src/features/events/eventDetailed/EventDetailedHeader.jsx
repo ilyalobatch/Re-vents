@@ -1,34 +1,30 @@
+// Semantic UI components
 import { Segment, Image, Item, Header, Button } from "semantic-ui-react";
 
-import { Link } from "react-router-dom";
+// Components
+import UnauthModal from "../../auth/UnauthModal";
 
+// library
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+
+// helpers
 import {
   addUserAttendance,
   cancelUserAttendance,
 } from "../../../app/firestore/firestoreService";
-import { useSelector } from "react-redux";
-import UnauthModal from "../../auth/UnauthModal";
 
-const eventImageStyle = {
-  filter: "brightness(30%)",
-};
+function EventDetailedHeader({ event, isHost, isGoing }) {
+  const { t } = useTranslation();
 
-const eventImageTextStyle = {
-  position: "absolute",
-  bottom: "5%",
-  left: "5%",
-  width: "100%",
-  height: "auto",
-  color: "white",
-};
-
-const EventDetailedHeader = ({ event, isHost, isGoing }) => {
   const [loading, setLoading] = useState(false);
-  const { authenticated } = useSelector((state) => state.auth);
   const [modalOpen, setModalOpen] = useState(false);
+  
+  const { authenticated } = useSelector((state) => state.auth);
 
   const handleUserJoinEvent = async () => {
     setLoading(true);
@@ -55,16 +51,10 @@ const EventDetailedHeader = ({ event, isHost, isGoing }) => {
   return (
     <>
       {modalOpen && <UnauthModal setModalOpen={setModalOpen} />}
-
-      <Segment.Group>
+      <Segment.Group className="eventHeader">
         <Segment basic attached="top" style={{ padding: "0" }}>
-          <Image
-            src={`/assets/categoryImages/${event.category}.jpg`}
-            fluid
-            style={eventImageStyle}
-          />
-
-          <Segment basic style={eventImageTextStyle}>
+          <Image src={`/assets/categoryImages/${event.category}.jpg`} fluid />
+          <Segment basic className="imageText">
             <Item.Group>
               <Item>
                 <Item.Content>
@@ -75,10 +65,10 @@ const EventDetailedHeader = ({ event, isHost, isGoing }) => {
                   />
                   <p>{format(event.date, "MMMM d, yyyy h:mm a")}</p>
                   <p>
-                    Hosted by{" "}
+                    {t("event.hostedBy")}
                     <strong>
                       <Link to={`/profile/${event.hostUid}`}>
-                        {event.hostedBy}
+                        {` ${event.hostedBy}`}
                       </Link>
                     </strong>
                   </p>
@@ -92,9 +82,11 @@ const EventDetailedHeader = ({ event, isHost, isGoing }) => {
           {!isHost && (
             <>
               {isGoing ? (
-                <Button onClick={handleUserLeaveEvent} loading={loading}>
-                  Cancel My Place
-                </Button>
+                <Button
+                  loading={loading}
+                  onClick={handleUserLeaveEvent}
+                  content={t("event.button.leaveEvent")}
+                />
               ) : (
                 <Button
                   onClick={
@@ -104,27 +96,25 @@ const EventDetailedHeader = ({ event, isHost, isGoing }) => {
                   }
                   loading={loading}
                   color="teal"
-                >
-                  JOIN THIS EVENT
-                </Button>
+                  content={t("event.button.joinEvent")}
+                />
               )}
             </>
           )}
 
           {isHost && (
             <Button
-              as={Link}
-              to={`/manage/${event.id}`}
               color="orange"
               floated="right"
-            >
-              Manage Event
-            </Button>
+              as={Link}
+              to={`/manage/${event.id}`}
+              content={t("event.button.manageEvent")}
+            />
           )}
         </Segment>
       </Segment.Group>
     </>
   );
-};
+}
 
 export default EventDetailedHeader;

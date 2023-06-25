@@ -1,7 +1,10 @@
+// Components
 import EventListItem from "./EventListItem";
+
+// library
 import InfiniteScroll from "react-infinite-scroller";
 
-const EventList = ({ events, getNextEvents, loading, moreEvents }) => {
+function EventList({ events, getNextEvents, loading, moreEvents }) {
   return (
     <>
       {events.length !== 0 && (
@@ -18,6 +21,6 @@ const EventList = ({ events, getNextEvents, loading, moreEvents }) => {
       )}
     </>
   );
-};
+}
 
 export default EventList;

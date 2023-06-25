@@ -1,8 +1,14 @@
-import { useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+// Semantic UI components
 import { Header, Icon } from "semantic-ui-react";
 
-const PhotoWidgetDropzone = ({ setFiles }) => {
+// library
+import { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
+
+function PhotoWidgetDropzone({ setFiles }) {
+  const { t } = useTranslation();
+
   const dropzoneStyles = {
     border: "3px dashed #eee",
     borderRadius: "5%",
@@ -40,9 +46,9 @@ const PhotoWidgetDropzone = ({ setFiles }) => {
     >
       <input {...getInputProps()} />
       <Icon name="upload" size="huge" />
-      <Header content="Drop image here" />
+      <Header content={t("profile.imageUploader.hint")} />
     </div>
   );
-};
+}
 
 export default PhotoWidgetDropzone;

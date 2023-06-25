@@ -36,22 +36,26 @@ const asyncReducer = (state = initialState, { type, payload }) => {
         ...state,
         loading: true,
       };
+
     case ASYNC_ACTION_FINISH:
       return {
         ...state,
         loading: false,
       };
+
     case ASYNC_ACTION_ERROR:
       return {
         ...state,
         loading: false,
         error: payload,
       };
+
     case APP_LOADED:
       return {
         ...state,
         initialized: true,
       };
+
     default:
       return state;
   }

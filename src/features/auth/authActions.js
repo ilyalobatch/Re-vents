@@ -1,4 +1,4 @@
-import { SIGN_IN_USER, SIGN_OUT_USER } from "./authConstants";
+import { SIGN_IN_USER, SIGN_OUT_USER, SWITCH_LANGUAGE } from "./authConstants";
 import firebase from "../../app/config/firebase";
 import { APP_LOADED } from "../../app/async/asyncReducer";
 import {
@@ -35,5 +35,12 @@ export const verifyAuth = () => {
 export const signOutUser = () => {
   return {
     type: SIGN_OUT_USER,
+  };
+};
+
+export const switchLanguage = (lang) => {
+  return {
+    type: SWITCH_LANGUAGE,
+    payload: lang,
   };
 };

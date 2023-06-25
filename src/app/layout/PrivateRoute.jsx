@@ -1,8 +1,11 @@
-import { useSelector } from "react-redux";
-import { Route } from "react-router-dom";
+// Components
 import UnauthModal from "../../features/auth/UnauthModal";
 
-const PrivateRoute = ({ component: Component, prevLocation, ...rest }) => {
+// library
+import { useSelector } from "react-redux";
+import { Route } from "react-router-dom";
+
+function PrivateRoute({ component: Component, prevLocation, ...rest }) {
   const { authenticated } = useSelector((state) => state.auth);
 
   return (
@@ -13,6 +16,6 @@ const PrivateRoute = ({ component: Component, prevLocation, ...rest }) => {
       }
     />
   );
-};
+}
 
 export default PrivateRoute;

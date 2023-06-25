@@ -1,11 +1,15 @@
-import { useField, useFormikContext } from "formik";
+// Semantic UI components
 import { FormField, Label } from "semantic-ui-react";
+
+// library
+import { useField, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
+
+// assets
 import "react-datepicker/dist/react-datepicker.css";
 
-const MyDateInput = ({ label, ...props }) => {
+function MyDateInput({ label, ...props }) {
   const { setFieldValue } = useFormikContext();
-
   const [field, meta] = useField(props);
 
   return (
@@ -24,6 +28,6 @@ const MyDateInput = ({ label, ...props }) => {
       ) : null}
     </FormField>
   );
-};
+}
 
 export default MyDateInput;

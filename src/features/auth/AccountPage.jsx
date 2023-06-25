@@ -1,12 +1,21 @@
+// Semantic UI components
+import { Button, Header, Label, Segment } from "semantic-ui-react";
+
+// Components
+import MyTextInput from "../../app/common/form/MyTextInput";
+
+// library
 import { Form, Formik } from "formik";
 import { useSelector } from "react-redux";
-import { Button, Header, Label, Segment } from "semantic-ui-react";
-import { updateUserPassword } from "../../app/firestore/firebaseService";
-import * as Yup from "yup";
-import MyTextInput from "../../app/common/form/MyTextInput";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
 
-const AccountPage = () => {
+// helpers
+import { updateUserPassword } from "../../app/firestore/firebaseService";
+
+function AccountPage() {
+  const { t } = useTranslation();
   const { currentUser } = useSelector((state) => state.auth);
 
   return (
@@ -14,15 +23,21 @@ const AccountPage = () => {
       <Header dividing size="large" content="Account" />
       {currentUser.providerId === "password" && (
         <>
-          <Header color="teal" sub content="Change Password" />
-          <p>Use this form to change your password</p>
+          <Header
+            sub
+            color="teal"
+            content={t("account.header.changePassword")}
+          />
+          <p>{t("account.message.changePassword")}</p>
           <Formik
-            initialValues={{ newPassword1: "", newPassword2: "" }}
+            initialValues={{ newPassword: "", newPasswordConfirm: "" }}
             validationSchema={Yup.object({
-              newPassword1: Yup.string().required("Password is required"),
-              newPassword2: Yup.string().oneOf(
-                [Yup.ref("newPassword1"), null],
-                "Passwords do not match"
+              newPassword: Yup.string().required(
+                t("form.message.passwordRequired")
+              ),
+              newPasswordConfirm: Yup.string().oneOf(
+                [Yup.ref("newPassword"), null],
+                t("form.message.inconsistentPasswords")
               ),
             })}
             onSubmit={async (values, { setSubmitting, setErrors }) => {
@@ -35,17 +50,17 @@ const AccountPage = () => {
               }
             }}
           >
-            {({ errors, isSubmitting, isValid, dirty }) => (
+            {({ isSubmitting, dirty, isValid, errors }) => (
               <Form className="ui form">
                 <MyTextInput
-                  name="newPassword1"
+                  name="newPassword"
                   type="password"
-                  placeholder="New Password"
+                  placeholder={t("form.field.newPassword")}
                 />
                 <MyTextInput
-                  name="newPassword2"
+                  name="newPasswordConfirm"
                   type="password"
-                  placeholder="Confirm Password"
+                  placeholder={t("form.field.confirmPassword")}
                 />
                 {errors.auth && (
                   <Label
@@ -57,12 +72,12 @@ const AccountPage = () => {
                 )}
                 <Button
                   style={{ display: "block" }}
-                  type="submit"
-                  disabled={!isValid || isSubmitting || !dirty}
                   loading={isSubmitting}
-                  size="large"
                   positive
-                  content="Update password"
+                  type="submit"
+                  size="large"
+                  disabled={!isValid || isSubmitting || !dirty}
+                  content={t("form.button.updatePassword")}
                 />
               </Form>
             )}
@@ -71,32 +86,40 @@ const AccountPage = () => {
       )}
       {currentUser.providerId === "facebook.com" && (
         <>
-          <Header color="teal" sub content="Facebook account" />
-          <p>Please visit Facebook to update your account</p>
+          <Header
+            sub
+            color="teal"
+            content={t("account.header.facebookAccount")}
+          />
+          <p>{t("account.message.visitFacebook")}</p>
           <Button
             icon="facebook"
             color="facebook"
             as={Link}
             to="https://facebook.com"
-            content="Go to Facebook"
+            content={t("account.button.toFacebook")}
           />
         </>
       )}
       {currentUser.providerId === "google.com" && (
         <>
-          <Header color="teal" sub content="Google account" />
-          <p>Please visit Google to update your account</p>
+          <Header
+            sub
+            color="teal"
+            content={t("account.header.googleAccount")}
+          />
+          <p>{t("account.message.visitGoogle")}</p>
           <Button
             icon="google"
             color="google plus"
             as={Link}
             to="https://google.com"
-            content="Go to Google"
+            content={t("account.button.toGoogle")}
           />
         </>
       )}
     </Segment>
   );
-};
+}
 
 export default AccountPage;

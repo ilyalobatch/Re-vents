@@ -1,11 +1,14 @@
+// library
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+
+// helpers
+import { dataFromSnapshot } from "../firestore/firestoreService";
 import {
   asyncActionError,
   asyncActionFinish,
   asyncActionStart,
 } from "../async/asyncReducer";
-import { dataFromSnapshot } from "../firestore/firestoreService";
 
 const useFirestoreCollection = ({ query, data, deps }) => {
   const dispatch = useDispatch();

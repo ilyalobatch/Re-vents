@@ -1,18 +1,27 @@
-import ModalWrapper from "../../app/common/modals/ModalWrapper";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
-import MyTextInput from "../../app/common/form/MyTextInput";
+// Semantic UI components
 import { Button, Divider, Label } from "semantic-ui-react";
+
+// Components
+import SocialLogin from "./SocialLogin";
+import MyTextInput from "../../app/common/form/MyTextInput";
+import ModalWrapper from "../../app/common/modals/ModalWrapper";
+
+// library
+import { Form, Formik } from "formik";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
+
+// helpers
 import { closeModal } from "../../app/common/modals/modalReducer";
 import { signInWithEmail } from "../../app/firestore/firebaseService";
-import SocialLogin from "./SocialLogin";
 
-const LoginForm = () => {
+function LoginForm() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   return (
-    <ModalWrapper size="mini" header="Sign in to Re-events">
+    <ModalWrapper size="mini" header={t("modal.login.header")}>
       <Formik
         initialValues={{ email: "", password: "" }}
         validationSchema={Yup.object({
@@ -25,18 +34,20 @@ const LoginForm = () => {
             setSubmitting(false);
             dispatch(closeModal());
           } catch (error) {
-            setErrors({ auth: "Username or password is incorrect" });
             setSubmitting(false);
+            setErrors({
+              auth: error.message || t("errors.invalidUsernameOrPass"),
+            });
           }
         }}
       >
-        {({ isSubmitting, isValid, dirty, errors }) => (
+        {({ isSubmitting, dirty, isValid, errors }) => (
           <Form className="ui form">
-            <MyTextInput name="email" placeholder="Email Address" />
+            <MyTextInput name="email" placeholder={t("form.field.email")} />
             <MyTextInput
               name="password"
-              placeholder="Password"
               type="password"
+              placeholder={t("form.field.password")}
             />
             {errors.auth && (
               <Label
@@ -47,13 +58,13 @@ const LoginForm = () => {
               />
             )}
             <Button
-              loading={isSubmitting}
-              disabled={!isValid || !dirty || isSubmitting}
-              type="submit"
               fluid
+              loading={isSubmitting}
+              disabled={isSubmitting || !dirty || !isValid}
+              type="submit"
               size="large"
               color="teal"
-              content="Login"
+              content={t("form.button.login")}
             />
             <Divider horizontal>Or</Divider>
             <SocialLogin />
@@ -62,6 +73,6 @@ const LoginForm = () => {
       </Formik>
     </ModalWrapper>
   );
-};
+}
 
 export default LoginForm;

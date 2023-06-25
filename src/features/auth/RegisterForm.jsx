@@ -1,18 +1,27 @@
-import ModalWrapper from "../../app/common/modals/ModalWrapper";
-import { Form, Formik } from "formik";
-import * as Yup from "yup";
-import MyTextInput from "../../app/common/form/MyTextInput";
+// Semantic UI components
 import { Button, Divider, Label } from "semantic-ui-react";
-import { useDispatch } from "react-redux";
-import { closeModal } from "../../app/common/modals/modalReducer";
-import { registerInFirebase } from "../../app/firestore/firebaseService";
+
+// Components
+import ModalWrapper from "../../app/common/modals/ModalWrapper";
+import MyTextInput from "../../app/common/form/MyTextInput";
 import SocialLogin from "./SocialLogin";
 
-const RegisterForm = () => {
+// library
+import { Form, Formik } from "formik";
+import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
+import * as Yup from "yup";
+
+// helpers
+import { closeModal } from "../../app/common/modals/modalReducer";
+import { registerInFirebase } from "../../app/firestore/firebaseService";
+
+function RegisterForm() {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
 
   return (
-    <ModalWrapper size="mini" header="Register to Re-events">
+    <ModalWrapper size="mini" header={t("modal.message.registerInApp")}>
       <Formik
         initialValues={{ displayName: "", email: "", password: "" }}
         validationSchema={Yup.object({
@@ -31,14 +40,17 @@ const RegisterForm = () => {
           }
         }}
       >
-        {({ isSubmitting, isValid, dirty, errors }) => (
+        {({ isSubmitting, dirty, isValid, errors }) => (
           <Form className="ui form">
-            <MyTextInput name="displayName" placeholder="DisplayName" />
-            <MyTextInput name="email" placeholder="Email Address" />
+            <MyTextInput
+              name="displayName"
+              placeholder={t("form.field.displayName")}
+            />
+            <MyTextInput name="email" placeholder={t("form.field.email")} />
             <MyTextInput
               name="password"
-              placeholder="Password"
               type="password"
+              placeholder={t("form.field.password")}
             />
             {errors.auth && (
               <Label
@@ -49,13 +61,13 @@ const RegisterForm = () => {
               />
             )}
             <Button
-              loading={isSubmitting}
-              disabled={!isValid || !dirty || isSubmitting}
-              type="submit"
               fluid
+              loading={isSubmitting}
+              disabled={isSubmitting || !dirty || !isValid}
+              type="submit"
               size="large"
               color="teal"
-              content="Register"
+              content={t("form.button.register")}
             />
             <Divider horizontal>Or</Divider>
             <SocialLogin />
@@ -64,6 +76,6 @@ const RegisterForm = () => {
       </Formik>
     </ModalWrapper>
   );
-};
+}
 
 export default RegisterForm;

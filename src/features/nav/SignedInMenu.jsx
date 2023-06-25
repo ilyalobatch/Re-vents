@@ -1,21 +1,28 @@
+// Semantic UI components
 import { Menu, Image, Dropdown } from "semantic-ui-react";
+
+// library
 import { useHistory, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+
+// helpers
 import { signOutFirebase } from "../../app/firestore/firebaseService";
 
-const SignedInMenu = () => {
+function SignedInMenu() {
+  const { t } = useTranslation();
   const { currentUserProfile } = useSelector((state) => state.profile);
   const history = useHistory();
 
-  const handleSignOut = async () => {
+  async function handleSignOut() {
     try {
       history.push("/");
       await signOutFirebase();
     } catch (error) {
       toast.error(error.message);
     }
-  };
+  }
 
   return (
     <Menu.Item position="right">
@@ -29,26 +36,30 @@ const SignedInMenu = () => {
           <Dropdown.Item
             as={Link}
             to="/createEvent"
-            text="Create Event"
             icon="plus"
+            text={t("navigation.item.createEvent")}
           />
           <Dropdown.Item
             as={Link}
             to={`/profile/${currentUserProfile?.id}`}
-            text="My profile"
             icon="user"
+            text={t("navigation.item.profile")}
           />
           <Dropdown.Item
             as={Link}
             to="/account"
-            text="My account"
             icon="settings"
+            text={t("navigation.item.account")}
           />
-          <Dropdown.Item onClick={handleSignOut} text="Sign Out" icon="power" />
+          <Dropdown.Item
+            icon="power"
+            text={t("navigation.item.signOut")}
+            onClick={handleSignOut}
+          />
         </Dropdown.Menu>
       </Dropdown>
     </Menu.Item>
   );
-};
+}
 
 export default SignedInMenu;
