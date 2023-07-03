@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 // helpers
 import { switchLanguage } from "../auth/authActions";
 
-function LanguageSwitcher() {
+function LanguageSwitcher({ inverted = true }) {
   const { i18n } = useTranslation();
   const { lang } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
@@ -24,9 +24,9 @@ function LanguageSwitcher() {
       className="lang-switcher"
       basic
       compact
-      inverted
+      inverted={inverted}
       size="small"
-      color="olive"
+      color={inverted ? "olive" : "inherit"}
     >
       <Button
         className={lang === "en" ? "active" : ""}
@@ -34,7 +34,6 @@ function LanguageSwitcher() {
         value="en"
         onClick={handleSwitchLanguage}
       />
-      {/*<Button.Or />*/}
       <Button
         className={lang === "ua" ? "active" : ""}
         content={"UA"}

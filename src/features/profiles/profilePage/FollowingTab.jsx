@@ -5,6 +5,7 @@ import { Card, Grid, Header, Tab } from "semantic-ui-react";
 import ProfileCard from "./ProfileCard";
 
 // library
+import { useMemo, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -15,11 +16,24 @@ import {
 } from "../../../app/firestore/firestoreService";
 import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { listenToFollowers, listenToFollowings } from "../profileActions";
+import { WindowContext } from "../../../app/context/WindowContext";
 
 function FollowingTab({ profile, activeTab }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { followers, followings } = useSelector((state) => state.profile);
+  const { followers, following } = useSelector((state) => state.profile);
+  const { isTablet, isMobile } = useContext(WindowContext);
+
+  const cardsPerRow = useMemo(() => {
+    switch (true) {
+      case isTablet:
+        return 3;
+      case isMobile:
+        return 2;
+      default:
+        return 5;
+    }
+  }, [isTablet, isMobile]);
 
   useFirestoreCollection({
     query:
@@ -48,13 +62,13 @@ function FollowingTab({ profile, activeTab }) {
           />
         </Grid.Column>
         <Grid.Column width={16}>
-          <Card.Group itemsPerRow={5}>
+          <Card.Group itemsPerRow={cardsPerRow}>
             {activeTab === 3 &&
               followers.map((profile) => (
                 <ProfileCard profile={profile} key={profile.id} />
               ))}
             {activeTab === 4 &&
-              followings.map((profile) => (
+              following.map((profile) => (
                 <ProfileCard profile={profile} key={profile.id} />
               ))}
           </Card.Group>

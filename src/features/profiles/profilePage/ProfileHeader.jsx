@@ -78,7 +78,7 @@ function ProfileHeader({ profile, isCurrentUser }) {
 
   return (
     <Segment>
-      <Grid>
+      <Grid stackable>
         <Grid.Column width={12}>
           <Item.Group>
             <Item>
@@ -97,14 +97,18 @@ function ProfileHeader({ profile, isCurrentUser }) {
             </Item>
           </Item.Group>
         </Grid.Column>
-        <Grid.Column width={4}>
-          <Statistic.Group>
+        <Grid.Column width={4} verticalAlign="middle">
+          <Statistic.Group size="small" widths={2}>
             <Statistic
-              label={t("profile.stats.followers")}
+              label={t("profile.stats.followers", {
+                defaultValue: "Followers",
+              })}
               value={profile.followerCount || 0}
             />
             <Statistic
-              label={t("profile.stats.following")}
+              label={t("profile.stats.following", {
+                defaultValue: "Following",
+              })}
               value={profile.followingCount || 0}
             />
           </Statistic.Group>
@@ -118,8 +122,12 @@ function ProfileHeader({ profile, isCurrentUser }) {
                     color="teal"
                     content={
                       followingUser
-                        ? t("profile.button.following")
-                        : t("profile.button.notFollowing")
+                        ? t("profile.button.following", {
+                            defaultValue: "Following",
+                          })
+                        : t("profile.button.notFollowing", {
+                            defaultValue: "Not following",
+                          })
                     }
                   />
                 </Reveal.Content>
@@ -133,8 +141,10 @@ function ProfileHeader({ profile, isCurrentUser }) {
                     color={followingUser ? "red" : "green"}
                     content={
                       followingUser
-                        ? t("profile.button.unfollow")
-                        : t("profile.button.follow")
+                        ? t("profile.button.unfollow", {
+                            defaultValue: "Unfollow",
+                          })
+                        : t("profile.button.follow", { defaultValue: "Follow" })
                     }
                   />
                 </Reveal.Content>

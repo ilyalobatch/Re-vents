@@ -7,29 +7,35 @@ import SignedInMenu from "./SignedInMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 // library
+import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
+// helpers
+import { WindowContext } from "../../app/context/WindowContext";
+
 function NavBar() {
   const { t } = useTranslation();
   const { authenticated } = useSelector((state) => state.auth);
+  const { isDesktop } = useContext(WindowContext);
 
   return (
     <Menu inverted fixed="top">
       <Container>
         <Menu.Item as={NavLink} exact to="/" className="logo">
-          <img src="/assets/logo.png" alt="Logo" style={{ marginRight: 10 }} />
+          <img src="/assets/logo.png" alt="Logo" />
           {t("common.appName")}
         </Menu.Item>
-        <Menu.Item
-          as={NavLink}
-          exact
-          to="/events"
-          name={t("navigation.item.events")}
-        />
-
-        {authenticated && (
+        {isDesktop && (
+          <Menu.Item
+            as={NavLink}
+            exact
+            to="/events"
+            name={t("navigation.item.events")}
+          />
+        )}
+        {authenticated && isDesktop && (
           <Menu.Item as={NavLink} to="/createEvent">
             <Button
               positive
@@ -38,11 +44,11 @@ function NavBar() {
             />
           </Menu.Item>
         )}
-
-        <Menu.Item position="right">
-          <LanguageSwitcher />
-        </Menu.Item>
-
+        {isDesktop && (
+          <Menu.Item position="right">
+            <LanguageSwitcher />
+          </Menu.Item>
+        )}
         {authenticated ? <SignedInMenu /> : <SignedOutMenu />}
       </Container>
     </Menu>

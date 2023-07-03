@@ -46,7 +46,7 @@ function EventDetailedPage({ match }) {
   }
 
   return (
-    <Grid className="eventDetailView">
+    <Grid className="eventDetailView stackable">
       <Grid.Column width={10}>
         <EventDetailedHeader event={event} isGoing={isGoing} isHost={isHost} />
         <EventDetailedInfo event={event} />

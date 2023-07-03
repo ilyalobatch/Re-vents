@@ -2,23 +2,28 @@
 import { Card, Grid, Header, Image, Tab } from "semantic-ui-react";
 
 // library
-import { useState } from "react";
+import { useState, useContext, useMemo } from "react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 // helpers
+import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { getUserEventsQuery } from "../../../app/firestore/firestoreService";
 import { listenToUserEvents } from "../profileActions";
-import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
+import { WindowContext } from "../../../app/context/WindowContext";
 
 function EventsTab({ profile }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { isTablet, isMobile } = useContext(WindowContext);
+
   const [activeTab, setActiveTab] = useState(0);
+
   const { profileEvents } = useSelector((state) => state.profile);
   const { loading } = useSelector((state) => state.async);
+
   const panes = [
     {
       menuItem: t("profile.panes.events.future", {
@@ -35,6 +40,17 @@ function EventsTab({ profile }) {
       pane: { key: "hosting" },
     },
   ];
+
+  const cardsPerRow = useMemo(() => {
+    switch (true) {
+      case isTablet:
+        return 3;
+      case isMobile:
+        return 2;
+      default:
+        return 5;
+    }
+  }, [isTablet, isMobile]);
 
   useFirestoreCollection({
     query: () => getUserEventsQuery(activeTab, profile.id),
@@ -56,9 +72,13 @@ function EventsTab({ profile }) {
           <Tab
             onTabChange={(e, data) => setActiveTab(data.activeIndex)}
             panes={panes}
-            menu={{ secondary: true, pointing: true }}
+            menu={{
+              secondary: true,
+              pointing: true,
+              style: { overflowX: "auto", paddingBottom: "2px" },
+            }}
           />
-          <Card.Group itemsPerRow={5} style={{ marginTop: 10 }}>
+          <Card.Group itemsPerRow={cardsPerRow} style={{ marginTop: 10 }}>
             {profileEvents.map((event) => (
               <Card as={Link} to={`/events/${event.id}`} key={event.id}>
                 <Image

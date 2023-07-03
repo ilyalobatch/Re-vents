@@ -5,24 +5,26 @@ import { Button, Card, Grid, Header, Image, Tab } from "semantic-ui-react";
 import PhotoUploadWidget from "../../../app/common/photos/PhotoUploadWidget";
 
 // library
-import { useState } from "react";
+import { useState, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 // helpers
+import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { deleteFromFirebaseStorage } from "../../../app/firestore/firebaseService";
 import {
   deletePhotoFromCollection,
   getUserPhotos,
   setMainPhoto,
 } from "../../../app/firestore/firestoreService";
-import useFirestoreCollection from "../../../app/hooks/useFirestoreCollection";
 import { listenToUserPhotos } from "../profileActions";
+import { WindowContext } from "../../../app/context/WindowContext";
 
 function PhotosTab({ profile, isCurrentUser }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const { isTablet, isMobile } = useContext(WindowContext);
 
   const { loading } = useSelector((state) => state.async);
   const { photos } = useSelector((state) => state.profile);
@@ -30,6 +32,17 @@ function PhotosTab({ profile, isCurrentUser }) {
   const [editMode, setEditMode] = useState(false);
   const [updating, setUpdating] = useState({ isUpdating: false, target: null });
   const [deleting, setDeleting] = useState({ isDeleting: false, target: null });
+
+  const cardsPerRow = useMemo(() => {
+    switch (true) {
+      case isTablet:
+        return 3;
+      case isMobile:
+        return 2;
+      default:
+        return 5;
+    }
+  }, [isTablet, isMobile]);
 
   useFirestoreCollection({
     query: () => getUserPhotos(profile.id),
@@ -86,7 +99,7 @@ function PhotosTab({ profile, isCurrentUser }) {
           {editMode ? (
             <PhotoUploadWidget setEditMode={setEditMode} />
           ) : (
-            <Card.Group itemsPerRow={5}>
+            <Card.Group itemsPerRow={cardsPerRow}>
               {photos.map((photo) => (
                 <Card key={photo.id}>
                   <Image src={photo.url} wrapped />

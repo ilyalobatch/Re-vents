@@ -16,6 +16,12 @@
 }
 
 .dashboard {
+  &.ui.grid {
+    @media screen and (max-width: 768px) {
+      flex-direction: column-reverse; // row-reverse is not working :/
+    }
+  }
+
   .ui.segments {
     .ui.segment {
       &.clearing {

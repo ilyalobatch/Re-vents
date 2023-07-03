@@ -36,7 +36,7 @@ function LoginForm() {
           } catch (error) {
             setSubmitting(false);
             setErrors({
-              auth: error.message || t("errors.invalidUsernameOrPass"),
+              auth: t("errors.invalidUsernameOrPass"),
             });
           }
         }}

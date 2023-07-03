@@ -1,16 +1,24 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
+// Components
+import App from "./app/layout/App";
+import ScrollToTop from "./app/layout/ScrollToTop";
+
+// assets
 import "semantic-ui-css/semantic.min.css";
 import "react-toastify/dist/ReactToastify.min.css";
 import "react-calendar/dist/Calendar.css";
 import "./app/layout/styles.scss";
-import App from "./app/layout/App";
-import "./i18n/config";
-import reportWebVitals from "./reportWebVitals";
+
+// library
+import React from "react";
+import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
-import configureStore, { history } from "./app/store/configureStore";
-import ScrollToTop from "./app/layout/ScrollToTop";
 import { ConnectedRouter } from "connected-react-router";
+
+// helpers
+import reportWebVitals from "./reportWebVitals";
+import configureStore, { history } from "./app/store/configureStore";
+import { WindowContextProvider } from "./app/context/WindowContext";
+import "./i18n/config";
 
 const store = configureStore();
 
@@ -18,12 +26,14 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 function render() {
   root.render(
-    <Provider store={store}>
-      <ConnectedRouter history={history}>
-        <ScrollToTop />
-        <App />
-      </ConnectedRouter>
-    </Provider>
+    <WindowContextProvider>
+      <Provider store={store}>
+        <ConnectedRouter history={history}>
+          <ScrollToTop />
+          <App />
+        </ConnectedRouter>
+      </Provider>
+    </WindowContextProvider>
   );
 }
 

@@ -42,7 +42,7 @@ function EventDashBoard() {
   }, [dispatch, filter, startDate, retainState]);
 
   return (
-    <Grid>
+    <Grid className="dashboard stackable">
       <Grid.Column width={10}>
         {loadingInitial && (
           <>
