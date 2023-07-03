@@ -21,7 +21,7 @@ import { WindowContext } from "../../../app/context/WindowContext";
 function FollowingTab({ profile, activeTab }) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { followers, following } = useSelector((state) => state.profile);
+  const { followers, followings } = useSelector((state) => state.profile);
   const { isTablet, isMobile } = useContext(WindowContext);
 
   const cardsPerRow = useMemo(() => {
@@ -68,7 +68,7 @@ function FollowingTab({ profile, activeTab }) {
                 <ProfileCard profile={profile} key={profile.id} />
               ))}
             {activeTab === 4 &&
-              following.map((profile) => (
+              followings.map((profile) => (
                 <ProfileCard profile={profile} key={profile.id} />
               ))}
           </Card.Group>
